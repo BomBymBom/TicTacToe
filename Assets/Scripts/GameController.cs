@@ -37,56 +37,51 @@ public class GameController : MonoBehaviour
     {
         for (int i = 0; i < 9; i++)
         {
-            _cells[i].GetComponent<CellController>().SetCellState(0);
+            _cells[i].GetComponent<CellStateController>().SetCellState(0);
         }
-        GetComponent<BotController>()._stepsPassed = 0;
+        GetComponent<BotAI>()._stepsPassed = 0;
 
         _isPlayerXStep = _beginGameX = !_beginGameX;
 
-        _bottomPanel.GetComponent<BottomPanelManager>().DeactivateRestart();
+        _bottomPanel.GetComponent<BottomPanel>().DeactivateRestart();
         StepController();
     }
 
-    IEnumerator WaitAndResetCells(float time)
-    {
-        yield return new WaitForSeconds(time);
-        ResetCells();
-    }
 
     private IEnumerator WinAnimation(int player)
     {
         int[] cellsState =new int[9];
         for(int i=0; i<9; i++)
         {
-            cellsState[i] = _cells[i].GetComponent<CellController>()._currentCellState;
+            cellsState[i] = _cells[i].GetComponent<CellStateController>()._currentCellState;
         }
 
 
         if (cellsState[0] == player && cellsState[1] == player && cellsState[2] == player) 
-        { _cells[0].GetComponent<CellController>().Win(); _cells[1].GetComponent<CellController>().Win(); _cells[2].GetComponent<CellController>().Win(); }
+        { _cells[0].GetComponent<CellStateController>().Win(); _cells[1].GetComponent<CellStateController>().Win(); _cells[2].GetComponent<CellStateController>().Win(); }
 
         else if (cellsState[3] == player && cellsState[4] == player && cellsState[5] == player)
-        { _cells[3].GetComponent<CellController>().Win(); _cells[4].GetComponent<CellController>().Win(); _cells[5].GetComponent<CellController>().Win(); }
+        { _cells[3].GetComponent<CellStateController>().Win(); _cells[4].GetComponent<CellStateController>().Win(); _cells[5].GetComponent<CellStateController>().Win(); }
 
         else if (cellsState[6] == player && cellsState[7] == player && cellsState[8] == player)
-        { _cells[6].GetComponent<CellController>().Win(); _cells[7].GetComponent<CellController>().Win(); _cells[8].GetComponent<CellController>().Win(); }
+        { _cells[6].GetComponent<CellStateController>().Win(); _cells[7].GetComponent<CellStateController>().Win(); _cells[8].GetComponent<CellStateController>().Win(); }
 
         else if (cellsState[0] == player && cellsState[4] == player && cellsState[8] == player)
-        { _cells[0].GetComponent<CellController>().Win(); _cells[4].GetComponent<CellController>().Win(); _cells[8].GetComponent<CellController>().Win(); }
+        { _cells[0].GetComponent<CellStateController>().Win(); _cells[4].GetComponent<CellStateController>().Win(); _cells[8].GetComponent<CellStateController>().Win(); }
 
         else if (cellsState[2] == player && cellsState[4] == player && cellsState[6] == player)
-        { _cells[2].GetComponent<CellController>().Win(); _cells[4].GetComponent<CellController>().Win(); _cells[6].GetComponent<CellController>().Win(); }
+        { _cells[2].GetComponent<CellStateController>().Win(); _cells[4].GetComponent<CellStateController>().Win(); _cells[6].GetComponent<CellStateController>().Win(); }
 
         else if (cellsState[0] == player && cellsState[3] == player && cellsState[6] == player)
-        { _cells[0].GetComponent<CellController>().Win(); _cells[3].GetComponent<CellController>().Win(); _cells[6].GetComponent<CellController>().Win(); }
+        { _cells[0].GetComponent<CellStateController>().Win(); _cells[3].GetComponent<CellStateController>().Win(); _cells[6].GetComponent<CellStateController>().Win(); }
 
         else if (cellsState[1] == player && cellsState[4] == player && cellsState[7] == player)
-        { _cells[1].GetComponent<CellController>().Win(); _cells[4].GetComponent<CellController>().Win(); _cells[7].GetComponent<CellController>().Win(); }
+        { _cells[1].GetComponent<CellStateController>().Win(); _cells[4].GetComponent<CellStateController>().Win(); _cells[7].GetComponent<CellStateController>().Win(); }
 
         else if (cellsState[2] == player && cellsState[5] == player && cellsState[8] == player)
-        { _cells[2].GetComponent<CellController>().Win(); _cells[5].GetComponent<CellController>().Win(); _cells[8].GetComponent<CellController>().Win(); }
+        { _cells[2].GetComponent<CellStateController>().Win(); _cells[5].GetComponent<CellStateController>().Win(); _cells[8].GetComponent<CellStateController>().Win(); }
 
-        _bottomPanel.GetComponent<BottomPanelManager>().ActivateRestart();
+        _bottomPanel.GetComponent<BottomPanel>().ActivateRestart();
         yield return new WaitForSeconds(1f);
 
     }
@@ -104,7 +99,7 @@ public class GameController : MonoBehaviour
         int[] cellsState1 = new int[9];
         for (int i = 0; i < 9; i++)
         {
-            cellsState1[i] = _cells[i].GetComponent<CellController>()._currentCellState;
+            cellsState1[i] = _cells[i].GetComponent<CellStateController>()._currentCellState;
         }
         if (
             (cellsState1[0] == player && cellsState1[1] == player && cellsState1[2] == player) ||
@@ -141,12 +136,12 @@ public class GameController : MonoBehaviour
             _AddPointAnimation.SetTrigger("PlayerWin");
             StartCoroutine(WinAnimation(1));
         }
-        else if (GetComponent<BotController>()._stepsPassed == 9)
+        else if (GetComponent<BotAI>()._stepsPassed == 9)
         {
             _AddPointAnimation.SetTrigger("Draw");
             _draw += 1;
             _drawText.text = _draw.ToString();
-            _bottomPanel.GetComponent<BottomPanelManager>().ActivateRestart();
+            _bottomPanel.GetComponent<BottomPanel>().ActivateRestart();
         }
         else if (!_isPlayerXStep)
         {
@@ -164,12 +159,12 @@ public class GameController : MonoBehaviour
 
     IEnumerator  BotStep(float time)
     {
-        int i = GetComponent<BotController>().BotAI();
+        int i = GetComponent<BotAI>().BotDecision();
         
         yield return new WaitForSeconds(time);
 
-        if (_cells[i].GetComponent<CellController>()._currentCellState == 0)
-            _cells[i].GetComponent<CellController>().SetCellState(2);
+        if (_cells[i].GetComponent<CellStateController>()._currentCellState == 0)
+            _cells[i].GetComponent<CellStateController>().SetCellState(2);
         _isPlayerXStep = true;
 
         StepController();
@@ -181,13 +176,13 @@ public class GameController : MonoBehaviour
 
         if (_isPlayerXStep)
         {
-            CellController clickedCell;
-            clickedCell = cell.GetComponent<CellController>();
+            CellStateController clickedCell;
+            clickedCell = cell.GetComponent<CellStateController>();
 
             if(clickedCell._currentCellState == 0 )
             {
                 clickedCell.SetCellState(1);
-                GetComponent<BotController>()._stepsPassed += 1;
+                GetComponent<BotAI>()._stepsPassed += 1;
                 _isPlayerXStep = false;
                 StepController();
             }
